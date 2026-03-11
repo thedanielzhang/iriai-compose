@@ -68,14 +68,14 @@ async def test_auto_approve_respond(respond_pending):
 
 async def test_terminal_approve_yes(approve_pending):
     rt = TerminalInteractionRuntime()
-    with patch("iriai_compose.runtimes.asyncio.to_thread", return_value="y"):
+    with patch("iriai_compose.runtimes.terminal.asyncio.to_thread", return_value=True):
         result = await rt.resolve(approve_pending)
     assert result is True
 
 
 async def test_terminal_approve_no(approve_pending):
     rt = TerminalInteractionRuntime()
-    with patch("iriai_compose.runtimes.asyncio.to_thread", return_value="n"):
+    with patch("iriai_compose.runtimes.terminal.asyncio.to_thread", return_value=False):
         result = await rt.resolve(approve_pending)
     assert result is False
 
@@ -83,7 +83,7 @@ async def test_terminal_approve_no(approve_pending):
 async def test_terminal_approve_feedback(approve_pending):
     rt = TerminalInteractionRuntime()
     with patch(
-        "iriai_compose.runtimes.asyncio.to_thread", return_value="needs changes"
+        "iriai_compose.runtimes.terminal.asyncio.to_thread", return_value="needs changes"
     ):
         result = await rt.resolve(approve_pending)
     assert result == "needs changes"
@@ -91,7 +91,7 @@ async def test_terminal_approve_feedback(approve_pending):
 
 async def test_terminal_choose(choose_pending):
     rt = TerminalInteractionRuntime()
-    with patch("iriai_compose.runtimes.asyncio.to_thread", return_value="2"):
+    with patch("iriai_compose.runtimes.terminal.asyncio.to_thread", return_value="B"):
         result = await rt.resolve(choose_pending)
     assert result == "B"
 
@@ -99,13 +99,20 @@ async def test_terminal_choose(choose_pending):
 async def test_terminal_respond(respond_pending):
     rt = TerminalInteractionRuntime()
     with patch(
-        "iriai_compose.runtimes.asyncio.to_thread", return_value="my feedback"
+        "iriai_compose.runtimes.terminal.asyncio.to_thread", return_value="my feedback"
     ):
         result = await rt.resolve(respond_pending)
     assert result == "my feedback"
 
 
-# --- Claude deferred import ---
+# --- Deferred import errors ---
+
+def test_terminal_runtime_import_error():
+    with patch.dict("sys.modules", {"questionary": None}):
+        with pytest.raises(ImportError, match="questionary"):
+            from iriai_compose.runtimes.terminal import TerminalInteractionRuntime as T
+            T()
+
 
 def test_claude_runtime_import_error():
     try:

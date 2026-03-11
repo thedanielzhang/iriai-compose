@@ -9,14 +9,15 @@ description = "Runtime-agnostic, actor-neutral workflow orchestration for multi-
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.0,<3.0",
-    "questionary>=2.0,<3.0",
 ]
 
 [project.optional-dependencies]
+terminal = ["questionary>=2.0,<3.0"]
 dev = [
     "pytest>=7.0",
     "pytest-asyncio>=0.23",
     "ruff>=0.4",
+    "questionary>=2.0,<3.0",
 ]
 
 [tool.pytest.ini_options]
